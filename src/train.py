@@ -156,9 +156,9 @@ def main():
 
         print(f"Epoch {epoch + 1}/{epochs}, Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, Train MAE: {train_mae:.4f}, Val MAE: {val_mae:.4f}")
 
-    # Save final model weights
-    torch.save(model, "./models/mobilenet_v3_large_final_weights.pth")
-    print("Training complete and final model weights saved.")
+    # Save final model
+    torch.save(model, "./models/mobilenet_v3_large_final_model.pth")
+    print("Training complete and final model saved.")
 
 if __name__ == "__main__":
     main()
