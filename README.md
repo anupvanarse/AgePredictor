@@ -12,7 +12,7 @@ The project encompasses the following key components:
 2. **Transfer Learning**: Fine-tuning a pre-trained deep learning model for age prediction.
 3. **Evaluation**: Assessing model performance using Mean Absolute Error (MAE).
 4. **Model Quantization**: Optimizing the model for edge deployment.
-5. **C++ Integration**: Packaging the trained model for seamless deployment in C++ environments.
+5. **C++ Integration**: Suggestions for packaging the trained model for seamless deployment in C++ environments.
 
 ### Objective
 
@@ -100,7 +100,7 @@ python deployment/inference.py --model_path ./models/model.pth --input_folder ./
 
 ### Quantization
 
-Optimize the model for edge deployment by quantizing it:
+Optimize the model for edge deployment by quantizing it to qint8 natively supported by torch.quantization:
 
 ```bash
 python src/quantize.py
@@ -128,15 +128,7 @@ Refer to `deployment/README.md` for detailed instructions on integrating the mod
 
 ---
 
-## Key Features
 
-1. **Preprocessing**: Image resizing, normalization, and `.npz` format conversion.
-2. **Transfer Learning**: Fine-tuning a MobileNet model for regression.
-3. **Quantization**: Dynamic quantization and Quantization-Aware Training (QAT) to enhance efficiency.
-4. **Evaluation**: Robust metrics (e.g., MAE) for assessing performance.
-5. **Edge Deployment**: Seamless integration into C++ applications.
-
----
 
 ## Dependencies
 
@@ -154,14 +146,7 @@ To run the project in a containerized environment, use the provided `Dockerfile`
 
 ```bash
 docker build -t age-prediction .
-docker run -it age-prediction
+docker run -it --gpus all age-prediction
 ```
-
----
-
-## References
-
-- [PyTorch Documentation](https://pytorch.org/docs/)
-- [TorchVision](https://pytorch.org/vision/stable/index.html)
 
 ---
