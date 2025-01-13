@@ -11,7 +11,6 @@ from tqdm import tqdm
 from torch.optim.lr_scheduler import CosineAnnealingLR, LambdaLR
 from torchsummary import summary 
 
-
 def main():
     # Define dataset path
     npz_file = "./dataset/np_data.npz"  # Replace with the actual path to the .npz file
@@ -44,9 +43,9 @@ def main():
         )
 
     # Model setup
-    model = models.efficientnet_v2_s(pretrained=True)  # Use EfficientNet-V2 Small
+    model = models.mobilenet_v3_small(pretrained=True)  # Use MobileNetV3 Small
     model.classifier = nn.Sequential(
-        nn.Linear(model.classifier[1].in_features, 256),
+        nn.Linear(model.classifier[0].in_features, 256),
         nn.ReLU(),
         nn.Dropout(0.3),  # Prevent overfitting
         nn.Linear(256, 1)  # Final output for regression
@@ -107,7 +106,7 @@ def main():
         val_loss = evaluate(model, test_loader, criterion, device)
 
         # Update learning rate schedulers
-        if epoch < 5:
+        if epoch < 3:
             warmup_scheduler.step()
         else:
             cosine_scheduler.step()
@@ -115,7 +114,7 @@ def main():
         print(f"Epoch {epoch + 1}/{epochs}, Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}")
 
     # Save model
-    torch.save(model.state_dict(), "./models/efficientnet_v2_s_age_prediction.pth")
+    torch.save(model, "./models/mobilenet_v3_small_age_prediction.pth")
 
     print("Training complete and model saved.")
 
