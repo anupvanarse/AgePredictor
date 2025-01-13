@@ -1,0 +1,6 @@
+tqdm
+scikit-learn
+pandas
+torchsummary
+wandb
+numpy
