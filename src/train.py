@@ -20,6 +20,7 @@ import wandb
 def train_one_epoch(model, dataloader, criterion, optimizer, device, scaler):
     model.train()
     epoch_loss = 0
+    epoch_mae = 0
     progress_bar = tqdm(dataloader, desc="Training", unit="batch")
     for images, ages in progress_bar:
         images, ages = images.to(device), ages.to(device, dtype=torch.float32)
@@ -31,13 +32,15 @@ def train_one_epoch(model, dataloader, criterion, optimizer, device, scaler):
         scaler.step(optimizer)
         scaler.update()
         epoch_loss += loss.item()
+        epoch_mae += torch.mean(torch.abs(outputs - ages)).item()
         progress_bar.set_postfix(loss=loss.item())
-    return epoch_loss / len(dataloader)
+    return epoch_loss / len(dataloader), epoch_mae / len(dataloader)
 
 # Define evaluation
 def evaluate(model, dataloader, criterion, device):
     model.eval()
     epoch_loss = 0
+    epoch_mae = 0
     progress_bar = tqdm(dataloader, desc="Evaluating", unit="batch")
     with torch.no_grad():
         for images, ages in progress_bar:
@@ -45,8 +48,9 @@ def evaluate(model, dataloader, criterion, device):
             outputs = model(images).squeeze(1)
             loss = criterion(outputs, ages)
             epoch_loss += loss.item()
+            epoch_mae += torch.mean(torch.abs(outputs - ages)).item()
             progress_bar.set_postfix(loss=loss.item())
-    return epoch_loss / len(dataloader)
+    return epoch_loss / len(dataloader), epoch_mae / len(dataloader)
 
 def main():
     # Define dataset path
@@ -130,11 +134,13 @@ def main():
     best_val_loss = float('inf')
     for epoch in range(epochs):
         print(f"Epoch {epoch + 1}/{epochs}")
-        train_loss = train_one_epoch(model, train_loader, criterion, optimizer, device, scaler)
-        val_loss = evaluate(model, test_loader, criterion, device)
+        train_loss, train_mae = train_one_epoch(model, train_loader, criterion, optimizer, device, scaler)
+        val_loss, val_mae = evaluate(model, test_loader, criterion, device)
 
         # Log metrics to WandB
-        wandb.log({"train_loss": train_loss, "val_loss": val_loss})
+        wandb.log({"train_loss": train_loss, "train_mae": train_mae,
+                   "val_loss": val_loss, "val_mae": val_mae
+                   })
 
         # Save the best model weights, implemented like a callback
         if val_loss < best_val_loss:
@@ -148,7 +154,7 @@ def main():
         else:
             cosine_scheduler.step()
 
-        print(f"Epoch {epoch + 1}/{epochs}, Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}")
+        print(f"Epoch {epoch + 1}/{epochs}, Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, Train MAE: {train_mae:.4f}, Val MAE: {val_mae:.4f}")
 
     # Save final model weights
     torch.save(model, "./models/mobilenet_v3_large_final_weights.pth")
