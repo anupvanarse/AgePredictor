@@ -57,17 +57,11 @@ def train_qat(model, train_loader, test_loader, criterion, optimizer, num_epochs
 npz_file = "./dataset/np_data.npz"  # Path to your dataset file
 batch_size = 128
 
-train_transform = transforms.Compose([
+transform = transforms.Compose([
     transforms.RandomHorizontalFlip(p=0.4),
     transforms.RandomRotation(degrees=10),
     transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
     transforms.RandomResizedCrop(size=(128, 128), scale=(0.8, 1.0)),
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-])
-
-test_transform = transforms.Compose([
-    transforms.Resize((128, 128)),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
@@ -77,22 +71,13 @@ train_loader, test_loader = get_train_test_loaders(
     batch_size=batch_size,
     test_split=0.2,
     num_workers=4,
-    train_transform=train_transform,
-    test_transform=test_transform
+    train_transform=transform,
+    test_transform=transform
 )
 
 # Load the pre-trained model and data loaders
 device = "cpu"
-from torchvision import models
-# model = models.efficientnet_v2_s(pretrained=False) 
-# model.classifier = nn.Sequential(
-#     nn.Linear(model.classifier[1].in_features, 256),
-#     nn.ReLU(),
-#     nn.Dropout(0.3),  # Prevent overfitting
-#     nn.Linear(256, 1)  # Final output for regression
-# )
-# model.load_state_dict(torch.load("./models/efficientnet_v2_s_age_prediction.pth"))
-model = torch.load("./models/mobilenet_v3_small_age_prediction.pth")
+model = torch.load("./models/mobilenet_v3_large_age_prediction.pth")
 model.to(device)
 
 criterion = nn.HuberLoss(delta=1.0)  # Using Huber Loss for regression
@@ -124,15 +109,18 @@ if (quantized_loss - original_loss) / original_loss > 0.25:
     num_epochs = 2
 
     qat_model = train_qat(qat_model, train_loader, test_loader, criterion, optimizer, num_epochs, device)
-    quantization.convert(qat_model, inplace=True)
+    qat_model = quantization.convert(qat_model, inplace=True)
 
     print("Evaluating QAT-trained model...")
     qat_loss = evaluate_model(qat_model, test_loader, criterion, device)
     print(f"QAT Test Loss: {qat_loss:.4f}")
+    torch.save(qat_model, "./models/quantized_mobilenet_v3_large_age_prediction_qat.pth")
+    print(f"QAT-trained quantized model saved ")
 else:
     print("Performance drop is within acceptable limits. Skipping QAT.")
     quantized_model = quantization.convert(quantized_model, inplace=False)
-    print("Finalized quantized model without QAT.")
+    torch.save(quantized_model, "./models/quantized_mobilenet_v3_large_age_prediction_qat.pth")
+    print(f"QAT-trained quantized model saved ")
 
 # Compare performances
 print("Performance Comparison:")
