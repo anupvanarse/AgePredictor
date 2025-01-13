@@ -62,7 +62,7 @@ def main():
         "epochs": 10,
         "learning_rate": 1e-4,
         "weight_decay": 0.01,
-        "model": "MobileNetV3-Large",
+        "model": "MobileNetV2",
         "num_workers": 4
         }
 
@@ -95,14 +95,15 @@ def main():
         test_transform=test_transform,
     )
 
-    # Initialize MobileNetV3 Large model
-    model = models.mobilenet_v3_large(pretrained=True)  # Load pretrained weights
+    # Initialize MobileNetV2 model
+    model = models.mobilenet_v2(pretrained=True)  # Load pretrained weights
     model.classifier = nn.Sequential(
-        nn.Linear(model.classifier[0].in_features, 256),  # First fully connected layer
+        nn.Linear(model.last_channel, 256),  # First fully connected layer
         nn.ReLU(),  # Activation function
         nn.Dropout(0.3),  # Dropout to prevent overfitting
         nn.Linear(256, 1)  # Final output for regression
     )
+
     
     # Set device to GPU if available, else CPU
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -145,7 +146,7 @@ def main():
         # Save the best model weights, implemented like a callback
         if val_loss < best_val_loss:
             best_val_loss = val_loss
-            torch.save(model.state_dict(), "./models/mobilenet_v3_large_best_weights.pth")
+            torch.save(model.state_dict(), "./models/mbnetv2_best_weights.pth")
             print(f"Best model weights saved at epoch {epoch + 1}")
 
         # Update learning rate schedulers
@@ -157,7 +158,7 @@ def main():
         print(f"Epoch {epoch + 1}/{epochs}, Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, Train MAE: {train_mae:.4f}, Val MAE: {val_mae:.4f}")
 
     # Save final model
-    torch.save(model, "./models/mobilenet_v3_large_final_model.pth")
+    torch.save(model, "./models/mbnet_v2_final_model.pth")
     print("Training complete and final model saved.")
 
 if __name__ == "__main__":
