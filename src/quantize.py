@@ -64,7 +64,7 @@ def main():
     batch_size = 128
 
     transform = transforms.Compose([
-        transforms.Resize((128, 128)),  # Resize to fixed size
+        transforms.Resize((224, 224)),  # Resize to fixed size
         transforms.ToTensor(),  # Convert to tensor
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  # Normalize with ImageNet stats
     ])

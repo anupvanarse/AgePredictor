@@ -73,13 +73,13 @@ def main():
         transforms.RandomHorizontalFlip(p=0.4),  # Randomly flip images horizontally
         transforms.RandomRotation(degrees=10),  # Apply random rotation
         transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),  # Apply color jitter
-        transforms.RandomResizedCrop(size=(128, 128), scale=(0.8, 1.0)),  # Randomly crop and resize
+        transforms.RandomResizedCrop(size=(224, 224), scale=(0.8, 1.0)),  # Randomly crop and resize
         transforms.ToTensor(),  # Convert to tensor
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  # Normalize with ImageNet stats
     ])
 
     test_transform = transforms.Compose([
-        transforms.Resize((128, 128)),  # Resize to fixed size
+        transforms.Resize((224, 224)),  # Resize to fixed size
         transforms.ToTensor(),  # Convert to tensor
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  # Normalize with ImageNet stats
     ])
@@ -111,7 +111,7 @@ def main():
 
     # Print model summary
     print("Model Summary:")
-    summary(model, input_size=(3, 128, 128))
+    summary(model, input_size=(3, 224, 224))
 
     # Initialize loss function and optimizer
     criterion = nn.HuberLoss(delta=1.0)  # Robust loss function for regression
