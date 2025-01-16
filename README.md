@@ -142,7 +142,29 @@ pip install -r requirements.txt
 
 ## Docker Support
 
-To run the project in a containerized environment, use the provided `Dockerfile`:
+### Prebuilt Docker Image (GitHub Packages)
+
+The Docker image for this project is available on **GitHub Container Registry**.
+
+#### Pull the Prebuilt Image:
+
+```bash
+docker pull ghcr.io/<your-github-username>/<repository-name>:latest
+```
+
+Replace `<your-github-username>` and `<repository-name>` with the appropriate values.
+
+#### Run the Docker Container:
+
+```bash
+docker run -it --gpus all ghcr.io/<your-github-username>/<repository-name>:latest
+```
+
+This will launch an interactive shell with GPU access enabled, starting in the `AgePredictor` working directory.
+
+### Build the Docker Image Locally
+
+To build the Docker image locally, use the provided `Dockerfile`:
 
 ```bash
 docker build -t age-prediction .
