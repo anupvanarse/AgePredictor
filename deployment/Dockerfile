@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN mkdir -p /workspace/AgePredictor
 
 # Clone the GitHub repository
-RUN git clone https://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@github.com/anupvanarse/AgePredictor.git /workspace/AgePredictor
+RUN git clone https://${GITHUB_TOKEN}@github.com/anupvanarse/AgePredictor.git /workspace/AgePredictor
 
 # Set AgePredictor as the working directory
 WORKDIR /workspace/AgePredictor
